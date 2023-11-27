@@ -1,30 +1,24 @@
-// const fs = require("fs");
+const http = require("http");
 
-// fs.readFile("./test.txt", "utf-8", (error, data) => {
-//   fs.mkdirSync("./files", () => {});
+const PORT = 3000;
 
-//   fs.writeFileSync("./files/test2.txt", `${data}New text!`, (error) => {
-//     error ? console.log(error) : null;
-//   });
-// });
+const server = http.createServer((req, res) => {
+  console.log("Server start");
+  console.log(req.url, req.method);
 
-// setTimeout(() => {
-//   if (fs.existsSync("./files/test2.txt")) {
-//     fs.unlink("./files/test2.txt", () => {});
-//   }
-// }, 4000);
-// setTimeout(() => {
-//   if (fs.existsSync("./files")) {
-//     fs.rmdir("./files", () => {});
-//   }
-// }, 6000);
+  res.setHeader("Content-Type", "application/json");
 
-const Logger = require("./log");
-const logger = new Logger();
+  const data = JSON.stringify([
+    { name: "Tommy", age: 35 },
+    { name: "Arthur", age: 40 },
+  ]);
 
-logger.on("some_event", (args) => {
-  const { id, text } = args;
-  console.log(id, text);
+  // res.write('<head><link rel="stylesheet" href="#"></head>');
+  // res.write("<h1>Hello world!</h1>");
+  // res.write("<p>My name is Yahor</p>");
+  res.end(data);
 });
 
-logger.log("User Logged");
+server.listen(PORT, "localhost", (error) => {
+  error ? console.log(error) : console.log(`listening port ${PORT}`);
+});
