@@ -1,16 +1,26 @@
 const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
+const mongoose = require("mongoose");
+const Post = require("./models/post");
+const Contact = require("./models/contacts");
 
 const app = express();
 
 app.set("view engine", "ejs");
 
 const PORT = 3000;
+const db = "mongodb+srv://Yahor:lantirn1994@cluster0.chix9ce.mongodb.net/node-blog?retryWrites=true&w=majority";
+
+mongoose
+  .connect(db)
+  .then((res) => console.log("Connect to DB"))
+  .catch((error) => console.log(error));
 
 const createPath = (page) => path.resolve(__dirname, "ejs-views", `${page}.ejs`);
 
 app.listen(PORT, (error) => {
+  error ? console.log(error) : console.log(`listening port ${PORT}`);
   error ? console.log(error) : console.log(`listening port ${PORT}`);
 });
 
@@ -27,12 +37,12 @@ app.get("/", (req, res) => {
 
 app.get("/contacts", (req, res) => {
   const title = "Contacts";
-  const contacts = [
-    { name: "YouTube", link: "http://youtube.com/YauhenKavalchuk" },
-    { name: "Twitter", link: "http://github.com/YauhenKavalchuk" },
-    { name: "GitHub", link: "http://twitter.com/YauhenKavalchuk" },
-  ];
-  res.render(createPath("contacts"), { contacts, title });
+  Contact.find()
+    .then((contacts) => res.render(createPath("contacts"), { contacts, title }))
+    .catch((error) => {
+      console.log(error);
+      res.render(createPath("error"), { title: "Error" });
+    });
 });
 
 app.get("/posts/:id", (req, res) => {
@@ -63,30 +73,20 @@ app.get("/posts", (req, res) => {
 
 app.post("/add-post", (req, res) => {
   const { title, author, text } = req.body;
-  const post = {
-    id: new Date(),
-    date: new Date().toLocaleDateString(),
-    title,
-    author,
-    text,
-  };
-  res.render(createPath("post"), { post, title });
+  const post = new Post({ title, author, text });
+  post
+    .save()
+    .then((result) => res.send(result))
+    .catch((error) => {
+      console.log(error);
+      res.render(createPath("error"), { title: "Error" });
+    });
 });
 
 app.get("/add-post", (req, res) => {
   const title = "Add Post";
   res.render(createPath("add-post"), { title });
 });
-
-// app.get("/about-us", (req, res) => {
-//   const title = "Contacts";
-//   const contacts = [
-//     { name: "YouTube", link: "http://youtube.com/YauhenKavalchuk" },
-//     { name: "Twitter", link: "http://github.com/YauhenKavalchuk" },
-//     { name: "GitHub", link: "http://twitter.com/YauhenKavalchuk" },
-//   ];
-//   res.redirect(createPath("contacts"), { contacts, title });
-// });
 
 app.use((req, res) => {
   const title = "Error Page";
