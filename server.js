@@ -3,6 +3,7 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const postRouter = require("./routes/post-routes");
+const postApiRouter = require("./routes/api-post-routes");
 const contactsRouter = require("./routes/contacts-routes");
 const createPath = require("./helpers/create-path");
 
@@ -37,9 +38,8 @@ app.get("/", (req, res) => {
 });
 
 app.use(postRouter);
+app.use(postApiRouter);
 app.use(contactsRouter);
-
-// for error page--------------------------------------------------------------------------------------------------
 
 app.use((req, res) => {
   const title = "Error Page";
